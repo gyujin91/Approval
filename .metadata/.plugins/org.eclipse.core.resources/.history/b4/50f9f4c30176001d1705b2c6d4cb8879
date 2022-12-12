@@ -1,0 +1,24 @@
+package com.education.dao.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.education.dto.dto.HistoryDTO;
+
+public class HistoryDAOImpl implements HistoryDAO {
+
+	@Override
+	public List<HistoryDTO> historyList(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void historyInsert(HistoryDTO dto) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+	
+}

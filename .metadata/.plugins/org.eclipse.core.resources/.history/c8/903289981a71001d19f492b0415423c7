@@ -1,0 +1,10 @@
+package com.education.service;
+
+import com.education.dto.FileDTO;
+
+public interface fileService {
+	
+	public void fileInsert(FileDTO dto) throws Exception;
+	
+	public void fileDelete(int file_seq) throws Exception;
+}

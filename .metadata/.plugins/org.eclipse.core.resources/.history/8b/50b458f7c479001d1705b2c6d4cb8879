@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="approval">
+  	
+  	<resultMap type="map" id="rsMap">
+		<result property="bno" column="bno"/>
+		<result property="userid" column="userid"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content"/>
+		<result property="reg_date" column="reg_date"/>
+		<result property="sign_date" column="sign_date"/>
+		<result property="approver" column="approver"/>
+		<result property="sign_status" column="sign_status"/>
+	</resultMap>
+  				
+  	<sql id="session">
+  		<choose>
+  		<!-- 사원, 대리의 경우 본인 글만 볼 수 있게 -->
+  			<when test="loginMap.RANK == 'DD' or loginMap.RANK == 'dd'">
+  				and USERID = #{loginMap.USERID } 
+  			</when>
+  			<when test="loginMap.RANK == 'CC' or loginMap.RANK == 'cc'">
+  				and USERID = #{loginMap.USERID } 
+  			</when>
+  		<!-- 과장의 경우 본인 글 + 결재 대기중인 사원의 문서, 결재 처리 후엔 처리 한 과장만 볼 수 있게-->
+  			<when test="loginMap.RANK == 'BB' or loginMap.RANK == 'bb'">
+  				and USERID = #{loginMap.USERID } 
+  				or approver = #{loginMap.USERID }  
+  				or sign_status = 'wat'
+  			</when>
+  		<!-- 부장의 경우 다른 사람이 결재 처리 했어도 다 볼 수 있게 -->
+  		</choose>
+  	</sql>
+  	<sql id="searchSql">
+  		<choose>
+			<when test="searchType == 'userid'">
+				and userid like '%'||#{searchTxt}||'%'
+			</when>
+			<when test="searchType == 'approver'">
+				and approver like '%'||#{searchTxt}||'%'
+			</when>
+			<when test="searchType == 'content'">
+				and (title like '%'||#{searchTxt}||'%' or content like '%'||#{searchTxt}||'%')
+			</when>
+		</choose>
+		<if test="searchType2 != 'select' and searchType2 != null and searchType2 != ''">
+				and sign_status = #{searchType2 }
+		</if>
+		<if test="startDate != null and startDate != ''">
+				and to_char(reg_date, 'yyyy-MM-dd') between #{startDate} and #{endDate}
+		</if>
+  	</sql>
+  	
+  	<!-- select a.bno as bno, b.username as username, 
+  	a.title as title from gj_board a, gj_member b where a.userid = b.userid; -->
+	<!-- 글 목록 불러오기 -->
+	<select id="approvalList" resultType="com.education.dto.dto.ApprovalDTO">
+		select
+  			 BNO
+  			,decode(userid, 'test1', '김부장', 'test2', '이부장', 'test3', '박부장', 'test4', '김과장', 'test5', '이과장', 'test6', '박과장'
+  			,'test7', '김대리', 'test8', '이대리', 'test9', '박대리', 'test10', '김사원', 'test11', '이사원', 'test12', '박사원') userid
+			,TITLE 
+			,CONTENT
+			,REG_DATE
+			,SIGN_DATE
+			,decode(approver, 'test1', '김부장', 'test2', '이부장', 'test3', '박부장', 'test4', '김과장', 'test5', '이과장', 'test6', '박과장'
+  			,'test7', '김대리', 'test8', '이대리', 'test9', '박대리', 'test10', '김사원', 'test11', '이사원', 'test12', '박사원') approver
+			,decode(sign_status, 'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'end', '결재완료', 'ret', '반려') sign_status
+  		from gj_board
+		  	where 1=1
+				<include refid="searchSql"></include>
+				<include refid="session"></include>
+			order by bno desc
+	</select>	
+	
+	<!--  글 등록 -->
+	
+	<insert id="approvalWrite">
+		insert into gj_board
+			(BNO, 
+			USERID, 
+			TITLE,
+			CONTENT,
+			REG_DATE,
+			sign_status
+			)
+		values(
+			(select nvl(max(bno)+1, 1)from gj_board),
+			#{userid },
+			#{title },
+			#{content },
+			sysdate,
+			#{sign_status}
+			)	
+	</insert>
+	
+	<select id="maxBno" parameterType="map" resultType="integer">
+		select max(bno) + 1 from gj_board
+	</select>
+	
+	<!-- 글 상세보기 -->
+	<select id="approvalRead" resultType="com.education.dto.dto.ApprovalDTO">
+		select 
+			 BNO
+			,USERID
+			,TITLE
+			,CONTENT
+			,REG_DATE
+			,SIGN_DATE
+			,APPROVER
+			,sign_status	
+		from gj_board where BNO = #{bno }
+	</select>
+	
+	
+	
+	<!--  글 수정 -->
+	<update id="approvalUpdate">
+		update gj_board 
+		set 
+			TITLE = #{title },
+			CONTENT = #{content },
+			SIGN_STATUS = #{sign_status },
+			APPROVER = #{approver },
+			<if test="sign_status == 'tmp' or sign_status == 'wat'">
+				sign_date = null
+			</if>
+			<if test="sign_status == 'ing' or sign_status == 'end' or sign_status == 'ret'">
+				sign_date = sysdate
+			</if>
+		where BNO = #{bno } 
+	</update>
+	
+	
+</mapper> 

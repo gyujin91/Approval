@@ -1,0 +1,32 @@
+package com.education.service.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.education.dao.dao.HistoryDAO;
+import com.education.dto.dto.ApprovalDTO;
+import com.education.dto.dto.HistoryDTO;
+
+@Service
+public class HistoryServiceImpl implements HistoryService {
+
+	@Autowired
+	HistoryDAO historyDao;
+
+	@Override
+	public List<HistoryDTO> historyList(ApprovalDTO appDto) {
+		return historyDao.historyList(appDto);
+	}
+
+	@Override
+	public void historyInsert(HistoryDTO hdto) {
+		historyDao.historyInsert(hdto);
+	}
+	
+	
+	
+	
+}

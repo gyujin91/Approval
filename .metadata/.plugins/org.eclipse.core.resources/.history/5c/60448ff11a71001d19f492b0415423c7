@@ -1,0 +1,10 @@
+package com.education.dao;
+
+import com.education.dto.FileDTO;
+
+public interface FileDAO {
+
+	public void flieInsert(FileDTO dto) throws Exception;
+	
+	public void fileDelete(int file_seq) throws Exception; 
+}

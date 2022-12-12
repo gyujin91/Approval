@@ -1,0 +1,13 @@
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:42:51 +0900] "GET /myapp/board/writeForm.do HTTP/1.1" 404 721
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:42:57 +0900] "GET /myapp/board/list.do HTTP/1.1" 404 721
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:43:03 +0900] "GET /myapp/board/list.do HTTP/1.1" 404 721
+127.0.0.1 - - [02/Dec/2022:12:44:19 +0900] "GET / HTTP/1.1" 404 807
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:44:20 +0900] "GET /myapp/ HTTP/1.1" 200 4752
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:44:28 +0900] "GET /myapp/board/list.do HTTP/1.1" 200 13677
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:44:28 +0900] "GET /myapp/resources/css/normalize.css HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:44:28 +0900] "GET /myapp/resources/css/css.css HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:45:52 +0900] "GET /myapp/board/list.do HTTP/1.1" 200 13668
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:45:59 +0900] "GET /myapp/board/read.do?seq=2036 HTTP/1.1" 200 5738
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:12:46:03 +0900] "GET /myapp/board/writeForm.do HTTP/1.1" 200 5488
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:13:17:14 +0900] "GET /myapp/board/list.do HTTP/1.1" 200 13783
+0:0:0:0:0:0:0:1 - - [02/Dec/2022:13:17:48 +0900] "GET /myapp/board/read.do?seq=2034 HTTP/1.1" 200 5788

@@ -1,0 +1,15 @@
+package com.education.dto;
+
+public class FileDTO {
+	private int file_seq;
+	private String real_name;
+	private String save_name;
+	private String reg_date;
+	private String save_path;
+	private int list_seq;
+	
+	
+	
+	
+	
+}

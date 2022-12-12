@@ -1,0 +1,5 @@
+package com.education.service.service;
+
+public interface HistoryService {
+
+}

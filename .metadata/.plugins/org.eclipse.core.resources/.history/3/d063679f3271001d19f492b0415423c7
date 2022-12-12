@@ -1,0 +1,28 @@
+package com.education.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.education.dao.FileDAO;
+import com.education.dto.FileDTO;
+
+@Service
+public class FileServiceImpl implements FileService {
+
+	@Autowired
+	FileDAO fileDao;
+	
+	@Override
+	public void fileInsert(FileDTO dto) throws Exception {
+		fileDao.fileInsert(dto);
+	}
+
+	@Override
+	public void fileDelete(int file_seq) throws Exception {
+		fileDao.fileDelete(file_seq);
+	}
+	
+	
+	
+	
+}

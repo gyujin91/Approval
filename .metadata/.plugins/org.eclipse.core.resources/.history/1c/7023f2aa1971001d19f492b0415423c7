@@ -1,0 +1,8 @@
+package com.education.dao;
+
+import com.education.dto.FileDTO;
+
+public class FileDAO {
+	
+	public void flieInsert(FileDTO dto) throws Exception;
+}

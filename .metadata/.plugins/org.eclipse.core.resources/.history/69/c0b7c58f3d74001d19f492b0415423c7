@@ -1,0 +1,84 @@
+ package com.education.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.education.dto.BoardDTO;
+
+@Repository
+public class BoardDAOImpl implements BoardDAO{
+
+		@Autowired
+		SqlSession sqlSession;
+
+		@Override
+		public List<BoardDTO> boardList(Map<String, Object> map) throws Exception {
+			return sqlSession.selectList("board.boardList", map);
+		}
+	
+
+		@Override
+		public BoardDTO boardRead(int seq) throws Exception { return
+				 sqlSession.selectOne("board.boardRead", seq); 
+		 }
+		 
+		@Override
+		public void boardWrite(BoardDTO dto) {
+			 sqlSession.insert("board.boardWrite", dto);
+		}
+
+		@Override
+		public void boardUpdate(BoardDTO dto) throws Exception {
+			sqlSession.update("board.boardUpdate", dto);
+		}
+
+		@Override
+		public void boardDelete(int seq) throws Exception {
+			sqlSession.delete("board.boardDelete", seq);
+		}
+		
+		@Override
+		public void view_cnt(int seq) throws Exception {
+			sqlSession.update("board.view_cnt", seq);
+			
+		}
+
+
+		@Override
+		public int total(Map<String, Object> map) throws Exception {
+			return sqlSession.selectOne("board.total", map);
+		}
+
+
+		@Override
+		public List<Map<String, Object>> miList(Map<String, Object> map){
+			return sqlSession.selectList("board.miList", map);
+		}
+
+
+		@Override
+		public void fileInsert(Map<String, Object> map) {
+			sqlSession.insert("board.fileInsert", map);
+		}
+
+
+		@Override
+		public void listSeq(int listSeq) {
+			sqlSession.selectOne("board.listSeq", listSeq);
+		}
+
+
+		
+		
+		
+
+		
+		
+		
+	
+		
+}

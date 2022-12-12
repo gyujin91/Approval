@@ -1,0 +1,148 @@
+package com.education.controller.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.education.dto.dto.ApprovalDTO;
+import com.education.service.service.ApprovalService;
+import com.education.service.service.MemberService;
+import com.google.inject.Inject;
+import com.tobesoft.platform.PlatformRequest;
+import com.tobesoft.platform.PlatformResponse;
+import com.tobesoft.platform.data.ColumnInfo;
+import com.tobesoft.platform.data.Dataset;
+import com.tobesoft.platform.data.DatasetList;
+import com.tobesoft.platform.data.VariableList;
+
+
+@Controller
+@RequestMapping("/member")
+public class MemberController {
+	
+	// 객체 주입
+	@Autowired
+	MemberService memberService;
+	
+	@Autowired
+	ApprovalService approvalService;
+
+	
+	@Autowired
+	HttpSession session;
+	
+	@Inject
+	SqlSession sqlSession;
+	
+	@Autowired
+	BCryptPasswordEncoder pwdEncoder;
+	
+	private static final Logger logger = LoggerFactory.getLogger(MemberController.class);
+		
+	@RequestMapping(value="loginCheck.do", method = RequestMethod.POST)
+	public String loginCheck(Model model, @RequestParam String userid, @RequestParam String userpw){
+		Map<String, Object> loginMap = memberService.loginCheck(userid);
+		String url = "";
+		
+		if(loginMap == null) {
+			model.addAttribute("loginCheck", "useridFail");
+			url = "home";
+		} else if(!userpw.equals(loginMap.get("USERPW").toString())) {
+			model.addAttribute("loginCheck", "userpwFail");
+			url = "home";
+		} else {
+			session.setAttribute("loginMap", loginMap);
+			url = "redirect:approvalList.do";
+		}
+		return url;
+	}
+		
+	// 로그아웃
+	@RequestMapping("logout.do")
+	public String memberLogout(HttpSession session) throws Exception {
+		// 브라우저 종료 시 에도 세션 정보를 날림
+		// 세션 날리고 로그 아웃
+		session.invalidate();
+		return "redirect:/";
+	}
+	
+	@RequestMapping("approvalList.do")
+	public String approverList(Model model, @RequestParam Map<String, Object> map, HttpSession session) throws Exception {
+		// board 테이블에서 전체 글 리스트로 불러오기
+		map.put("loginMap", session.getAttribute("loginMap"));
+		if(map.get("loginMap") != null) {
+			List<ApprovalDTO> approvalList = approvalService.approvalList(map); 
+			
+			model.addAttribute("approvalList", approvalList);
+			model.addAttribute("map", map);
+			
+		}
+		return "member/approvalList";
+	}
+	
+	// ajax
+	@RequestMapping("searchAjax.do")
+	public String searchAjax(Model model, @RequestParam Map<String, Object> map) throws Exception {
+		
+		List<ApprovalDTO> approvalList = approvalService.approvalList(map); 
+		
+		model.addAttribute("approvalList", approvalList);
+		model.addAttribute("map", map);
+		return "member/searchAjax";
+	}
+	
+	
+	@RequestMapping("writeForm.do")
+	public String approvalWriteForm(Model model, @RequestParam Map<String, Object> map) throws Exception {
+		// 등록 다음 글번호 노출
+		int bnum = approvalService.maxBno();
+		map.put("bnum", String.valueOf(bnum));
+		model.addAttribute("bnum", bnum);
+		return "member/approvalWriteForm";
+	}
+	
+	// 게시판 등록
+	@RequestMapping("approvalWrite.do")
+	public String approvalWrite(Model model, ApprovalDTO dto) throws Exception {
+		System.out.println(dto.getUserid());
+		approvalService.approvalWrite(dto);
+		return "redirect:approvalList.do";
+	}
+		
+	// 게시판 상세보기
+	 @RequestMapping(value = "approvalRead.do", method = RequestMethod.GET) 
+	 public String approvalRead(@RequestParam int bno, Model model) throws Exception {
+		 ApprovalDTO dto = approvalService.approvalRead(bno);		 
+		 model.addAttribute("dto", dto);  
+		 return "member/approvalWriteForm"; 
+	 }	
+	 
+	@RequestMapping("approvalUpdate.do")
+	public String approvalUpdate(Model model, ApprovalDTO dto) throws Exception {
+		approvalService.approvalUpdate(dto);
+		return "redirect:approvalList.do";
+	}
+	
+	@RequestMapping("approvalDelete.do")
+	public String approvalDelete(@RequestParam int bno) throws Exception {
+		approvalService.approvalDelete(bno);
+		return "redirect:approvalList.do";
+	}
+	
+	
+
+	
+}

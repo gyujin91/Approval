@@ -1,0 +1,10 @@
+INDEX VERSION 1.4+D:\gyujin\approval\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+1211480300.index
+3555527613.index
+1570730795.index
+1211480300.index
+3641142594.index
+2985075584.index
+2107720908.index
+3259447875.index
+837870475.index

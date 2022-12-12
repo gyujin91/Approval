@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="board">
+
+	<resultMap type="map" id="rsMap">
+		<result property="seq" column="seq"/>
+		<result property="memName" column="mem_name"/>
+		<result property="memId" column="mem_id"/>
+		<result property="boardSubject" column="board_subject"/>
+		<result property="boardContent" column="board_content"/>
+		<result property="regDate" column="reg_date"/>
+		<result property="uptDate" column="upt_date"/>
+		<result property="viewCnt" column="view_cnt"/>
+	</resultMap>
+
+	
+	<sql id="searchSql">
+  		<choose>
+			<when test="searchType == 'mem_name'">
+				and mem_name like '%'||#{searchTxt}||'%'
+			</when>
+			<when test="searchType == 'board_subject'">
+				and board_subject like '%'||#{searchTxt}||'%'
+			</when>
+			<when test="searchType == 'board_content'">
+				and (board_subject like '%'||#{searchTxt}||'%' or BOARD_CONTENT like '%'||#{searchTxt}||'%')
+			</when>
+		</choose>
+		<if test="startDate != null and startDate != ''">
+				and to_char(reg_date, 'yyyy-MM-dd') between #{startDate} and #{endDate}
+		</if>
+  	</sql>
+  	
+	<!-- 글 목록 불러오기/ 검색 -->
+	<select id="boardList" resultType="com.education.dto.BoardDTO">
+  		select
+  			rnum
+  			,SEQ
+			,MEM_NAME
+			,MEM_ID
+			,BOARD_SUBJECT
+			,BOARD_CONTENT
+			,REG_DATE
+			,UPT_DATE
+			,VIEW_CNT
+			,USEYN
+  		from (
+		  		select
+		  			row_number() over(order by seq desc) rnum
+		  			,SEQ
+					,MEM_NAME
+					,MEM_ID
+					,BOARD_SUBJECT
+					,BOARD_CONTENT
+					,REG_DATE
+					,UPT_DATE
+					,VIEW_CNT
+					,USEYN
+				from board_study
+				where 1=1
+				<include refid="searchSql"></include>
+		)where rnum between (#{pageNo}-1)*#{listSize}+1 and #{pageNo} * #{listSize}
+		
+  	</select>
+	
+	<select id="total" parameterType="map" resultType="integer">
+  		select count(seq) from board_study
+  		where 1=1
+  		<include refid="searchSql"></include>
+  	</select>	
+	
+	
+	<!-- 글 상세보기 -->
+	<select id="boardRead" resultType="com.education.dto.BoardDTO">
+		select 
+			seq,
+			mem_name,
+			mem_id,
+			board_subject,
+			board_content						
+		from board_study where seq = #{seq }
+	</select>
+	
+	
+	<select id="listSeq" resultType="integer">
+		select nvl(max(seq), 0)+1 from board_study
+	</select>
+	
+	<insert id="fileInsert" parameterType="com.education.dto.FileDTO">
+		insert into file_study_table values
+		(
+			(select nvl(max(file_seq),0)+1 from file_study_table)
+			,#{read_name}
+			,#{save_name}
+			,sysdate
+			,#{file_path}
+			,#{list_seq}
+		)
+	</insert>
+	
+	<select id="fileList" resultType="map" parameterType="integer">
+		select
+			FILE_SEQ
+			,REAL_NAME
+			,SAVE_NAME
+			,REG_DATE
+			,SAVE_PATH
+			,LIST_SEQ
+		from file_study_table 
+		where list_seq = #{seq}
+	</select>
+	
+	<!--  글 등록 -->
+	<insert id="boardWrite">
+		insert into board_study
+			(seq, 
+			board_subject, 
+			mem_name,
+			mem_id,
+			board_content,
+			reg_date,
+			view_cnt)
+		values(
+			(select nvl(max(seq)+1, 1)from board_study),
+			#{board_subject },
+			#{mem_name },
+			#{mem_id },
+			#{board_content },
+			sysdate,
+			0)	
+	</insert>
+	
+	
+	
+	<!--  글 수정 -->
+	<update id="boardUpdate">
+		update board_study set 
+			board_subject = #{board_subject },
+			mem_name = #{mem_name },
+			mem_id = #{mem_id },
+			board_content = #{board_content },
+			upt_date = sysdate						
+		where seq = #{seq }
+	</update>
+	
+	
+	
+	<!-- 조회수 증가  -->
+	<update id="view_cnt" parameterType="int">
+		update board_study set
+			view_cnt = view_cnt + 1 where seq = #{seq }
+	</update>
+	
+	
+	
+	
+	<!-- 글 삭제 -->
+	<delete id="boardDelete">
+		delete from board_study where seq = #{seq }
+	</delete>
+	
+	
+	
+	
+	<!-- 리스트에서 체크박스로 글 삭제 -->
+	<!-- 배열로 받아서 지워야 하기 때문에 Integer -->
+	<delete id="chkDelete" parameterType="Integer">
+		<!-- delelte from board_study where in
+			<foreach collection="" open="(" close=")"></foreach> -->
+		<!-- item - 변수, separator : 반복 되는 사이에 출력할 문자열 
+		collection : 전달받은 인자. List or Array 형태만 가능 -->
+		delete from board_study where in()
+		<foreach collection="list" item="list" separator=",">
+			#{list}
+		</foreach>
+		)	
+	</delete>
+	
+	<select id="miList" resultMap="rsMap">
+		select
+  			 SEQ
+			,MEM_NAME
+			,MEM_ID
+			,BOARD_SUBJECT
+			,BOARD_CONTENT
+			,REG_DATE
+			,UPT_DATE
+			,VIEW_CNT
+			,USEYN
+		from board_study
+		order by seq desc
+	</select>
+	
+</mapper> 

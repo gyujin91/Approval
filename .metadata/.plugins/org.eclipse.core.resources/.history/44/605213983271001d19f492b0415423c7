@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="file">
+	<select id="fileInsert">
+		insert 
+			into file_study_table
+			(file_seq,
+			real_name,
+			save_name,
+			reg_date,
+			save_path,
+			list_seq)
+			values(
+			(select nvl(max(file_seq)+1, 1)from file_study_table),
+			#{real_name},
+			#{save_name},
+			sysdate,
+			#{save_path},
+			#{list_seq})	
+	</select>
+	
+	<delete id="fileDelete">
+		delete from file_study_table where file_seq = #{file_seq}
+	</delete>
+	
+	
+</mapper> 

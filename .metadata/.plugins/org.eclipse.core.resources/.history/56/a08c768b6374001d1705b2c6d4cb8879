@@ -1,0 +1,191 @@
+package com.education.controller;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.education.dto.BoardDTO;
+import com.education.dto.FileDTO;
+import com.education.service.BoardService;
+import com.tobesoft.platform.PlatformRequest;
+import com.tobesoft.platform.PlatformResponse;
+import com.tobesoft.platform.data.ColumnInfo;
+import com.tobesoft.platform.data.Dataset;
+import com.tobesoft.platform.data.DatasetList;
+import com.tobesoft.platform.data.VariableList;
+
+
+@Controller
+@RequestMapping("/board/*")
+public class BoardController {
+	
+	@Autowired
+	BoardService boardService;
+	
+	private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
+
+	private static final String filePath = null;
+	
+	// 게시판 목록 불러오기
+	@RequestMapping("list.do")
+	public String boardList(Model model, @RequestParam Map<String, Object> map) throws Exception {
+		// board 테이블에서 전체 글 리스트로 불러오기
+		
+		if(map.isEmpty()) {
+			map.put("pageNo", 1);
+			map.put("listSize", 10);
+		}
+		 
+		List<BoardDTO> boardList = boardService.boardList(map); 
+		Map<String, Object> pageMap = boardService.page(map);
+		
+		model.addAttribute("boardList", boardList);
+		model.addAttribute("map", map);
+		model.addAttribute("pageMap", pageMap);
+		
+		
+		return "board/boardList";
+	}
+	// ajax 비동기 리스트 넘기기 + 페이징
+	@RequestMapping("listAjax.do")
+	public String listAjax(Model model, @RequestParam Map<String, Object> map) throws Exception {
+		List<BoardDTO> boardList = boardService.boardList(map); 
+		Map<String, Object> pageMap = boardService.page(map);
+		
+		model.addAttribute("boardList", boardList);
+		model.addAttribute("map", map);
+		model.addAttribute("pageMap", pageMap);
+		
+		return "board/listAjax";
+	}
+	
+	// 게시판 폼 이동
+	@RequestMapping("writeForm.do")
+	public String boardWriteForm(Model model) throws Exception {
+		return "board/boardWriteForm";		
+	}
+	
+	public static final String filePath = "D://gyujin//img/";
+	
+	// 게시판 등록
+	@RequestMapping("write.do")
+	public String boardWrite(Model model, BoardDTO dto, MultipartHttpServletRequest mRequest, @RequestParam int listSeq, FileDTO fdto) throws IllegalStateException, IOException {
+		// mRequest.getFile(name) - 단일
+		// mRequest.getFileNames() - 단일 여러개 
+		// mRequest.getFiles(name) - 다중
+		// iterator 는 보통 while 문이랑 같이 씀
+		// 파일 첨부는 글 게시보다 먼저 실행되게 
+		
+		//파일의 이름들을 itr에 담음
+		// Iterator는 자바의 컬렉션 프레임워크에서 컬렉션에 저장되어 있는 요소들을 읽어오는 방법을 표준화한 것
+		// hasNext() : 읽어올 요소가 남아있는지 확인하는 메서드, 요소가 있으면 true, 없으면 false
+		// next() : 다음 데이터를 반환
+		// remove() : next()로 읽어온 요소를 삭제
+		int seq = boardService.listSeq(listSeq);
+		Iterator<String> itr = mRequest.getFileNames();
+		while(itr.hasNext())
+		{
+			MultipartFile mFile = mRequest.getFile(itr.next());
+			// 파일 실제 이름
+			String realName = mFile.getOriginalFilename();
+			// 파일 저장 이름 - UUID를 통해 랜덤 번호, 문자 생성
+			String saveName = UUID.randomUUID() + "_" + realName;
+			
+			mFile.transferTo(new File(filePath + saveName));
+			
+			Map<String, Object> fileMap = new HashMap<String, Object>(); 
+			
+			fileMap.put("realName", realName);
+			fileMap.put("saveName", saveName);
+			fileMap.put("filePath", filePath);
+			fileMap.put("listSeq",  seq);
+			
+			
+		}
+		boardService.boardWrite(dto);
+		boardService.fileInsert(fdto);
+		return "redirect:list.do";
+	}
+	
+	// 게시판 상세보기
+	 @RequestMapping(value = "read.do", method = RequestMethod.GET) 
+	 public String boardRead(@RequestParam int seq, Model model) throws Exception {
+		 boardService.view_cnt(seq);
+		 BoardDTO board = boardService.boardRead(seq);		 
+		 model.addAttribute("board", board); 
+		 return "board/boardWriteForm"; 
+	 }	
+		
+	// 게시판 글 수정
+	@RequestMapping(value = "update.do", method = RequestMethod.GET)
+	public String boardUpdate(BoardDTO dto, Model model) throws Exception {
+		boardService.boardUpdate(dto);
+		return "redirect:list.do";
+	}
+	
+	// 게시판 글 삭제
+	@RequestMapping(value = "delete.do", method = RequestMethod.GET)
+	public String boardDelete(@RequestParam int seq, Model model) throws Exception {
+		boardService.boardDelete(seq);
+		return "redirect:list.do";
+	}
+	
+	// 마이플랫폼 연동
+	// return type이 없으니까 void
+	@RequestMapping("miData")
+	public void miData(HttpServletResponse response, @RequestParam Map<String, Object> map) throws IOException{
+		
+		
+		
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		list = boardService.miList(map);
+		
+		Dataset ds = new Dataset("javaList");
+		
+		ds.addColumn("seq", ColumnInfo.COLTYPE_INT, 500);
+		ds.addColumn("mem_name", ColumnInfo.COLTYPE_STRING, 500);
+		ds.addColumn("board_subject", ColumnInfo.COLTYPE_STRING, 500);
+	/*
+	 * ds.addColumn("viewnt", ColumnInfo.COLTYPE_INT, 100); ds.addColumn("useyn",
+	 * ColumnInfo.COLTYPE_STRING, 100);
+	 */
+		 
+		for(int i = 0; i < list.size(); i++) {
+			int row = ds.appendRow();
+			
+			ds.setColumn(row, "seq", list.get(i).get("seq").toString());
+			ds.setColumn(row, "mem_name", list.get(i).get("memName").toString());
+			ds.setColumn(row, "board_subject", list.get(i).get("boardSubject").toString());
+		/*
+		 * ds.setColumn(row, "view_cnt", list.get(i).get("view_cnt").toString());
+		 * ds.setColumn(row, "useyn", list.get(i).get("useyn").toString());
+		 */
+		}
+		
+		DatasetList dl = new DatasetList();
+		dl.add(ds);
+		VariableList vl = new VariableList();
+		
+		PlatformResponse pRes = new PlatformResponse(response, PlatformRequest.JSP_XML, "UTF-8");
+		pRes.sendData(vl, dl);
+	}
+	
+}

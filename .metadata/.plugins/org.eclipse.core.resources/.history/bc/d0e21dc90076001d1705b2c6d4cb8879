@@ -1,0 +1,10 @@
+package com.education.dao.dao;
+
+import java.util.Map;
+
+import com.education.dto.dto.HistoryDTO;
+
+public interface HistoryDAO {
+	
+	public List<HistoryDTO dto> historyList(Map<String, Object> map);
+}

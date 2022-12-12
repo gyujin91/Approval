@@ -1,0 +1,5 @@
+package com.education.dao.dao;
+
+public interface HistoryDAO {
+
+}

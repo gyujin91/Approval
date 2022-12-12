@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="history">
+
+	<select id="historyList" resultType="com.education.dto.dto.HistoryDTO">
+		select
+			SEQ
+			,SIGN_DATE
+			,APPROVER
+			,APPR_SEQ
+			,decode(sign_status, 'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'end', '결재완료', 'ret', '반려') sign_status
+		from gj_history
+			order by seq asc
+	</select>
+	
+	<insert id="historyInsert">
+		insert into gj_history
+			(SEQ, 
+			SIGN_DATE, 
+			APPROVER,
+			APPR_SEQ,
+			SIGN_STATUS,
+			)
+		values(
+			(select nvl(max(seq)+1, 1)from gj_history),
+			#{seq },
+			#{sign_date },
+			#{appr_seq },
+			#{sign_status}
+			)	
+	</insert>
+
+	
+</mapper> 
