@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+	
+	<!-- 데이터 바인딩에 필요한 데이터베이스 공유 자원의 정보를 설정 -->
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- 오라클 설정 -->
+	<!-- id가 중요 나중에 id를 호출 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
+		<property name="url" value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="username" value="study" />
+		<property name="password" value="1234" />
+	</bean>	
+	
+	<!-- MySQL 설정 -->
+	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+        <property name="url"
+            value="jdbc:mysql://127.0.0.1:3306/스키마이름?useSSL=false&amp;serverTimezone=UTC">
+        </property>
+        <property name="username" value="MySQL 계정"></property>
+        <property name="password" value="비밀번호"></property>
+    </bean> -->
+    
+    <!-- MariaDB 설정 -->
+    <!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+	    <property name="driverClass" value="org.mariadb.jdbc.Driver"></property>
+	    <property name="url" value="jdbc:mariadb://localhost:3306/데이터베이스명"></property>
+	    <property name="username" value="아이디"></property>
+	    <property name="password" value="비밀번호"></property>
+	</bean> -->
+	
+	<!-- 공용 DB 또는 아파치 DBCP를 활용한 DB연결 설정 -->
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	 <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+	 <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" /> 
+	 <property name="username" value="java" />
+	 <property name="password" value="java1234" />
+	</bean> -->
+	
+	<!-- sqlSessionFactory : DB의 SQL을 해당 xml에서 xml 언어로 쉽게 DB처리하기 위한 설정 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- dataSource의 ref는 반드시 해당 드라이버의 id가 들어가야 한다. -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- mybatis의 설정 방식과 외부 파일의 위치 지정 -->
+		<property name="configLocation" value="classpath:/mybatis-config.xml"/>
+		<!-- xml로 sql명령이 내려 지는 실제 파일(mybatis mapper.xml 파일)을 지정 -->
+		<property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"></property>
+	</bean>
+	
+	<!-- SqlSession 객체 주입 -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+	
+	<!-- multipartresolver -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="100000000" />
+        <property name="maxInMemorySize" value="100000000" />
+	</bean>
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />	
+</beans>

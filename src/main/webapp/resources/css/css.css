@@ -1,0 +1,46 @@
+/* 기본 세팅 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+html a {
+    text-decoration: none;
+    color: inherit;
+}
+ul, li {
+    list-style: none;
+}
+
+/* 헤더 시작 */
+.header {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(../imgs/deer-7508187_1920.jpg);
+    background-size: cover;
+    height: 800px;
+}
+.header_wrap {
+    width: 1400px;
+    margin: auto;
+    padding-top: 25px;
+}
+
+.link_box {
+    float: right;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+}
+.link_box > a {
+    margin-right: 30px;
+}
+#content {
+    width: 1200px;
+    margin: auto;
+}
+
+
+
+
+

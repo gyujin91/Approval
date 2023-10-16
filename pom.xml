@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.approval</groupId>
+	<artifactId>myapp</artifactId>
+	<name>approval</name>
+	<packaging>war</packaging>
+	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<!-- 1. 자바 버전 1.8 변경 및 스프링 버전 변경 5.0.7.RELEASE -->
+	<!-- <properties>
+		<java-version>1.8</java-version>
+		<org.springframework-version>5.0.7.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.10</org.aspectj-version>
+		<org.slf4j-version>1.6.6</org.slf4j-version>
+	</properties> -->
+	<properties>
+		<java-version>1.8</java-version>
+		<org.springframework-version>3.1.1.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.10</org.aspectj-version>
+		<org.slf4j-version>1.6.6</org.slf4j-version>
+	</properties>
+	<!-- <dependencies>안에 필요한 jar가 들어옴</dependencies> -->
+	<dependencies>
+		<!-- Spring -->
+		<!-- Spring-context : 스프링에서 각종 작업의 연동이 잘 이루어질 수 있도록 흐름을 잡아주는 라이브러리 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<!-- Exclude Commons Logging in favor of SLF4j -->
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Spring-webmvc : spring에서 MVC 방식으로 프로그래밍을 구현하기 위한 라이브러리 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		
+		<!-- AspectJ : 관점 지향 프로그래밍 (AOP) 확장 기능을 제공하는 라이브러리-->
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${org.aspectj-version}</version>
+		</dependency>	
+		
+		<!-- Logging : 모든 자원의 접속 로그를 기록하기 위한 라이브러리 -->
+		<!--  2.logback-classic 추가하고, log4j의 scope를 각주처리 -->
+		<!-- Logging -->
+		<dependency>
+    		<groupId>ch.qos.logback</groupId>
+    		<artifactId>logback-classic</artifactId>
+    		<version>1.2.3</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.15</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+			</exclusions>
+			<!-- <scope>runtime</scope> -->
+		</dependency>
+
+		<!-- @Inject : 의존성 주입을 할 수 있도록 하는 라이브러리 -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+				
+		<!-- Servlet : 자바 서블릿을 활용하여 Controller를 생성하고, 번역해주는 라이브러리-->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+	
+		<!-- Test -->
+		<!-- 3. Java Unit Test(단위 테스트) 도구 : 4.13으로 버전 변경 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- 4. Spring-test 도구 설정 -->
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-test</artifactId>
+    		<version>5.0.7.RELEASE</version>
+    		<!-- <version>${org.springframework-version}</version> -->
+		</dependency>
+		
+		<!-- 5. Spring에서 war를 만들어 주는 라이브러리 추가 -->
+		<dependency>
+    		<groupId>org.apache.maven.plugins</groupId>
+    		<artifactId>maven-war-plugin</artifactId>
+    		<version>3.2.0</version>
+		</dependency>
+		
+		<!-- 6. lombok 1.18.22 추가 : getter/setter/constructor를 자동으로 생성해주는 라이브러리 -->
+		<dependency>
+    		<groupId>org.projectlombok</groupId>
+    		<artifactId>lombok</artifactId>
+    		<version>1.18.22</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<!-- 7. log4jdbc-log4j2-jdbc4 버전 1.16 추가 : DB의 접속로그를 기록하는 라이브러리 -->
+		<dependency>
+    		<groupId>org.bgee.log4jdbc-log4j2</groupId>
+    		<artifactId>log4jdbc-log4j2-jdbc4</artifactId>
+    		<version>1.16</version>
+		</dependency>
+		
+		<!-- 8. 스프링 계약 문서 패싱 라이브러리(라이센스) -->
+		<dependency>
+			<groupId>au.com.dius.pact.provider</groupId>
+			<artifactId>spring</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		
+		<!-- DB관련 라이브러리 패키지 라이브러리 추가-->
+		<!-- 9. 스프링에서 트랜잭션을 처리하기 위한 라이브러리  -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>3.1.1.RELEASE</version>
+		</dependency>
+		
+		<!-- 10. HikariCP : 스프링에서 미리 정해놓은 DB Connection pool을 자동으로 불러오는 라이브러리  -->
+		<dependency>
+    		<groupId>com.zaxxer</groupId>
+    		<artifactId>HikariCP</artifactId>
+    		<version>2.7.4</version>
+		</dependency>
+		
+		<!-- 11. Spring-jdbc : 스프링에서 DB를 사용하기 위한 연결 라이브러리 -->
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-jdbc</artifactId>
+    		<version>3.1.1.RELEASE</version>
+		</dependency>
+		
+		<!-- 12. commons-dbcp ver 1.4 : 자바웹에서 DB를 사용하기 위한 공용 연결 라이브러리 -->
+		<dependency>
+    		<groupId>commons-dbcp</groupId>
+    		<artifactId>commons-dbcp</artifactId>
+    		<version>1.4</version>
+		</dependency>
+		
+		<!-- 13-1. 오라클 DB 드라이버(연결자) -->
+		<!-- 오라클 21c 드라이버 -->
+		<!-- <dependency>
+    		<groupId>com.oracle.database.jdbc</groupId>
+    		<artifactId>ojdbc8</artifactId>
+    		<version>21.1.0.0</version>
+		</dependency> -->
+		<!-- 오라클 11g xe -->
+		<dependency>
+    		<groupId>com.oracle.database.jdbc</groupId>
+    		<artifactId>ojdbc6</artifactId>
+    		<version>11.2.0.4</version>
+		</dependency>
+		
+		<!-- 13-2. mysql 드라이버  -->
+		<dependency>
+   		 	<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+    		<version>8.0.28</version>
+		</dependency>
+		
+		<!-- 13.3  mariaDB-->
+		<dependency>
+    		<groupId>org.mariadb.jdbc</groupId>
+    		<artifactId>mariadb-java-client</artifactId>
+    		<version>2.2.3</version>
+		</dependency>
+		
+		<!-- 13.4 h2db -->
+		<dependency>
+    		<groupId>com.h2database</groupId>
+    		<artifactId>h2</artifactId>
+    		<version>1.4.200</version>
+    		<scope>test</scope>
+		</dependency>
+		
+		<!-- 13.5 mongoDB -->
+		<dependency>
+    		<groupId>org.mongodb</groupId>
+    		<artifactId>mongodb-driver</artifactId>
+    		<version>3.4.2</version>
+		</dependency>
+		
+		<!-- 14.1 mybatis : 자바에서 sql구문을 XML 형태로 구현하기 위한 언어를 위한 라이브러리  -->
+		<dependency>
+    		<groupId>org.mybatis</groupId>
+    		<artifactId>mybatis</artifactId>
+    		<version>3.4.6</version>
+		</dependency>
+		
+		<!-- 14.2 mybatis-spring-->
+		<dependency>
+    		<groupId>org.mybatis</groupId>
+    		<artifactId>mybatis-spring</artifactId>
+    		<version>1.3.2</version>
+		</dependency>
+		
+		<!-- 15.1. jackson ver 2.9.4 : JSON 파일 처리 -->
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-databind</artifactId>
+    		<version>2.9.4</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-core</artifactId>
+    		<version>2.9.4</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-annotations</artifactId>
+    		<version>2.9.4</version>
+		</dependency>
+		
+		<!-- 15.2. 구글제이슨 -->
+		<dependency>
+    		<groupId>com.google.code.gson</groupId>
+    		<artifactId>gson</artifactId>
+    		<version>2.8.0</version>
+		</dependency>
+		
+		<!-- 16. Multipart // 사진등록 -->
+		<!-- <dependency>
+    		<groupId>cos</groupId>
+    		<artifactId>cos</artifactId>
+    		<version>05Nov2002</version>
+		</dependency> -->   
+		
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-mapper-asl</artifactId>
+		    <version>1.9.13</version>
+		</dependency> 
+		
+		<!-- file Upload -->
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.0.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>commons-fileupload</groupId>
+		    <artifactId>commons-fileupload</artifactId>
+		    <version>1.2.2</version>
+		</dependency>
+		 
+		 <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>5.4.2</version>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>5.4.2</version>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>5.4.2</version>
+        </dependency> 
+        
+        
+		 
+	</dependencies>
+	
+	
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <additionalProjectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                    </additionalProjectnatures>
+                    <additionalBuildcommands>
+                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+                    </additionalBuildcommands>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+            <!-- 16.  자바 버전 source(.java), target(.class)의 버전을 1.8로 변경 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>org.test.int1.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

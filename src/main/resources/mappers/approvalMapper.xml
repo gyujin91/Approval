@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="approval">
+  	
+  	<resultMap type="map" id="rsMap">
+  		<result property="bno" column="bno"/>
+  		<result property="userid" column="userid"/>
+  		<result property="title" column="title"/>
+  		<result property="content" column="content"/>
+  		<result property="reg_date" column="reg_date"/>
+  		<result property="sign_date" column="sign_date"/>
+  		<result property="update_date" column="update_date"/>
+  		<result property="approver" column="approver"/>
+  		<result property="sign_status" column="sign_status"/>
+  	</resultMap>
+  	
+  	<sql id="searchSql">
+  		<choose>
+  			<when test="searchType == 'userId'">
+  				AND USERID LIKE '%'||#{searchTxt}||'%'
+  			</when>
+  			<when test="searchType == 'approver'">
+				AND APPROVER LIKE '%'||#{searchTxt}||'%'
+			</when>
+  			<when test="searchType == 'content'">
+  				AND (TITLE LIKE '%'||#{searchTxt}||'%' or CONTENT LIKE '%'||#{searchTxt}||'%')
+  			</when>
+  		</choose>
+  		<if test="searchType2 != 'select' and searchType2 != null and searchType2 != ''">
+  				AND SIGN_STATUS = #{searchType2}
+  		</if>
+  		<if test="startDate != null and startDate != ''">
+  				AND TO_CHAR(REG_DATE, 'yyyy-MM-dd') BETWEEN #{startDate} AND #{endDate}
+  		</if>
+  	</sql>
+  	
+  	<!--  게시판 리스트 조회 -->
+	<!-- <select id="approvalList"  resultType="com.approval.dto.ApprovalDTO">
+		SELECT 
+			BNO,
+			DECODE(USERID, 
+				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
+			TITLE,
+			CONTENT,
+			REG_DATE,
+			SIGN_DATE,
+			UPDATE_DATE,
+			DECODE(APPROVER,
+				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') APPROVER,
+			DECODE(SIGN_STATUS,  
+				'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'ret', '반려', 'end', '결재완료') SIGN_STATUS
+		FROM APPROVAL
+			WHERE 1=1
+			<include refid="searchSql"></include>
+			<include refid="session"></include>
+		ORDER BY BNO DESC
+	</select> -->
+	
+	<select id="approvalList"  resultType="com.approval.dto.ApprovalDTO">
+		SELECT 
+			BNO,
+			DECODE(USERID, 
+				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
+			TITLE,
+			CONTENT,
+			REG_DATE,
+			SIGN_DATE,
+			UPDATE_DATE,
+			DECODE(APPROVER,
+				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') APPROVER,
+			DECODE(SIGN_STATUS,  
+				'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'ret', '반려', 'end', '결재완료') SIGN_STATUS
+		FROM APPROVAL
+			WHERE 1=1
+			<include refid="searchSql"></include>
+			<!-- <include refid="session"></include> -->
+		ORDER BY BNO DESC
+	</select>
+	
+	<!-- 글 등록 -->
+	<insert id="approvalWrite">
+		INSERT INTO APPROVAL
+			(BNO,
+			USERID,
+			TITLE,
+			CONTENT,
+			REG_DATE,
+			SIGN_STATUS
+			) VALUES (
+			(SELECT NVL(MAX(BNO)+1, 1) FROM APPROVAL),
+			#{userId},
+			#{title},
+			#{content},
+			TO_CHAR(SYSDATE, 'YYYYMMDD'),
+			#{sign_status}
+			)
+	</insert>
+	
+	<!-- 글 상세보기 -->
+	<select id="approvalRead" resultType="com.approval.dto.ApprovalDTO">
+		SELECT
+			BNO,
+			DECODE(USERID, 
+				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
+			TITLE,
+			CONTENT,
+			REG_DATE,
+			SIGN_DATE,
+			UPDATE_DATE,
+			APPROVER,
+			SIGN_STATUS
+			<!-- DECODE(SIGN_STATUS,  
+			'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'ret', '반려', 'end', '결재완료') SIGN_STATUS -->
+		FROM APPROVAL
+		WHERE BNO = #{bno}
+	</select>
+	
+	<!-- 글 수정 -->
+	<update id="approvalUpdate">
+		UPDATE APPROVAL
+		SET 
+			TITLE = #{title},
+			CONTENT = #{content},
+			UPDATE_DATE = SYSDATE,
+			APPROVER = #{approver},
+			SIGN_STATUS = #{sign_status},
+			<if test="sign_status == 'tep' or sign_status == 'wat'">
+				SIGN_DATE = null
+			</if>
+			<if test="sign_status == 'ret' or sign_status == 'ing' or sign_status == 'end'">
+				SIGN_DATE = SYSDATE
+			</if>
+		WHERE BNO = #{bno}	
+	</update>
+	
+	<!-- 글 삭제 -->
+	<delete id="approvalDelete">
+		DELETE
+			FROM APPROVAL
+		WHERE BNO = #{bno}
+	</delete>
+	
+	<!-- 다음 글번호 노출 -->
+	<select id="maxBno" parameterType="map" resultType="integer">
+		SELECT MAX(BNO) +1 FROM APPROVAL
+	</select>
+	
+	
+	
+</mapper> 

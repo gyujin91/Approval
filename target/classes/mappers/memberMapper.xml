@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<!-- mapper - mybatis, sqlMap - ibatis -->
+<mapper namespace="member">
+	<!--  로그인 -->
+	<!-- MAP은 대문자로 저장됨 -->
+	<select id="loginCheck" parameterType="String" resultType="map">
+		SELECT 
+			USERID, 
+			USERPW, 
+			USERNAME, 
+			RANK,
+			DECODE(RANK, 'AA', '부장', 'BB', '과장', 'CC', '대리', 'DD', '사원') AS EMP_RANK
+		FROM MEMBER 
+		WHERE USERID = #{userId }
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper> 
