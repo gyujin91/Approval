@@ -43,7 +43,7 @@
 				 }">
 		<button type="button" class="btn btn-primary">대리결제</button>
 	</c:if>
-
+${searchType},${searchType2}
 	<div class="selectBox">
 		<form name="search_form" id="search_form" action="approvalList.do" method="post">
 		<input type = "hidden" name = "pageNo" id = "pageNo" value = "1">
@@ -167,13 +167,14 @@
 	}
 	
 	$(function() {
+		
 // 		$("#searchType").val('${map.searchType}');
 		
 		$("#search").click(function() {
 			$("#search_form").attr("action", "approvalList.do").attr("method", "post").submit();
 		})
 		
-			/* $("#search").click(function() {
+			$("#search").click(function() {
 				$.ajax({
 					// 요청
 					url : "searchAjax.do",	// action
@@ -188,8 +189,8 @@
 					error : function() {
 						alert("전송 실패");
 					}
-				})			
-			}) */
+				})
+			})
 		}) 
 		
 // 	$(function() {

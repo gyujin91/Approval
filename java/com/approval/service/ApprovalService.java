@@ -24,4 +24,7 @@ public interface ApprovalService {
 	
 	// 다음 글 번호
 	public int maxBno() throws Exception;
+	
+	// 페이징
+	public Map<String, Object> page(Map<String, Object> map1) throws Exception;
 }

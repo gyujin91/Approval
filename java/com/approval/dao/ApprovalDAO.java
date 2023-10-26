@@ -24,5 +24,8 @@ public interface ApprovalDAO {
 	
 	// 다음 글 번호
 	public int maxBno() throws Exception;
-
+	
+	public int total(Map<String, Object> map) throws Exception;
+	
+	
 }

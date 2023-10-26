@@ -9,7 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   	
   	<resultMap type="map" id="rsMap">
   		<result property="bno" column="bno"/>
-  		<result property="userid" column="userid"/>
+  		<result property="userId" column="userId"/>
   		<result property="title" column="title"/>
   		<result property="content" column="content"/>
   		<result property="reg_date" column="reg_date"/>
@@ -39,60 +39,67 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   		</if>
   	</sql>
   	
-  	<!--  게시판 리스트 조회 -->
-	<!-- <select id="approvalList"  resultType="com.approval.dto.ApprovalDTO">
-		SELECT 
-			BNO,
-			DECODE(USERID, 
-				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
-				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
-				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
-				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
-			TITLE,
-			CONTENT,
-			REG_DATE,
-			SIGN_DATE,
-			UPDATE_DATE,
-			DECODE(APPROVER,
-				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
-				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
-				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
-				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') APPROVER,
-			DECODE(SIGN_STATUS,  
-				'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'ret', '반려', 'end', '결재완료') SIGN_STATUS
-		FROM APPROVAL
-			WHERE 1=1
-			<include refid="searchSql"></include>
-			<include refid="session"></include>
-		ORDER BY BNO DESC
-	</select> -->
+  	<sql id="session">
+  		<choose>
+  		<!-- 사원, 대리의 경우 본인 글만 볼 수 있게 -->
+  			<when test="loginMap.RANK == 'DD' or loginMap.RANK == 'dd'">
+  				and USERID = #{loginMap.USERID } or USERID = #{loginMap.USERNAME }
+  			</when>
+  			<when test="loginMap.RANK == 'CC' or loginMap.RANK == 'cc'">
+  				and USERID = #{loginMap.USERID } 
+  			</when>
+  		<!-- 과장의 경우 본인 글 + 결재 대기중인 사원의 문서, 결재 처리 후엔 처리 한 과장만 볼 수 있게-->
+  			<!-- <when test="loginMap.RANK == 'BB' or loginMap.RANK == 'bb'">
+  				and USERID = #{loginMap.USERID } 
+  				or approver = #{loginMap.USERID }  
+  				or sign_status = 'wat'
+  			</when>
+  		부장의 경우 다른 사람이 결재 처리 했어도 다 볼 수 있게
+  			<when test="loginMap.RANK == 'AA' or loginMap.RANK == 'aa'">
+  				and USERID = #{loginMap.USERID }
+  				or approver = 'test1'
+  				or approver = 'test2'
+  				or approver = 'test3'
+  			</when> -->
+  		</choose>
+  	</sql>
 	
 	<select id="approvalList"  resultType="com.approval.dto.ApprovalDTO">
-		SELECT 
+		SELECT
+			RNUM,
 			BNO,
-			DECODE(USERID, 
-				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
-				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
-				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
-				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
+			USERID,
 			TITLE,
 			CONTENT,
 			REG_DATE,
 			SIGN_DATE,
 			UPDATE_DATE,
-			DECODE(APPROVER,
-				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
-				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
-				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
-				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') APPROVER,
+			APPROVER,
 			DECODE(SIGN_STATUS,  
 				'tep', '임시저장', 'wat', '결재대기', 'ing', '결재중', 'ret', '반려', 'end', '결재완료') SIGN_STATUS
-		FROM APPROVAL
-			WHERE 1=1
+		FROM(
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY BNO DESC) RNUM,
+				BNO,
+				USERID,
+				TITLE,
+				CONTENT,
+				REG_DATE,
+				SIGN_DATE,
+				UPDATE_DATE,
+				APPROVER,
+				SIGN_STATUS
+			FROM APPROVAL WHERE 1=1
 			<include refid="searchSql"></include>
-			<!-- <include refid="session"></include> -->
-		ORDER BY BNO DESC
+			<include refid="session"></include>
+		)where RNUM BETWEEN (#{pageNo}-1)*#{listSize}+1 AND #{pageNo} * #{listSize}
 	</select>
+	
+	<select id="total" parameterType="map" resultType="integer">
+  		SELECT COUNT(BNO) FROM APPROVAL
+  		WHERE 1=1
+  		<include refid="searchSql"></include>
+  	</select>
 	
 	<!-- 글 등록 -->
 	<insert id="approvalWrite">
@@ -118,7 +125,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT
 			BNO,
 			DECODE(USERID, 
-				'user1', '김부장', 'user2', '이부장', 'user3','박부장',
+				'user1', '김부장', 'user2', '이부장', 'user3', '박부장',
 				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
 				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
 				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
@@ -163,7 +170,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<!-- 다음 글번호 노출 -->
 	<select id="maxBno" parameterType="map" resultType="integer">
 		SELECT MAX(BNO) +1 FROM APPROVAL
-	</select>
+	</select>	
 	
 	
 	

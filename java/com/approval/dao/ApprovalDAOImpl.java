@@ -46,6 +46,13 @@ public class ApprovalDAOImpl implements ApprovalDAO{
 		return sqlSession.selectOne("approval.maxBno");
 	}
 
+	@Override
+	public int total(Map<String, Object> map) throws Exception {
+		return sqlSession.selectOne("approval.total", map);
+	}
+
+	
+
 	
 	
 }

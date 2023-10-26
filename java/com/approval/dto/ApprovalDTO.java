@@ -68,6 +68,12 @@ public class ApprovalDTO {
 	public void setSign_status(String sign_status) {
 		this.sign_status = sign_status;
 	}
+	@Override
+	public String toString() {
+		return "ApprovalDTO [bno=" + bno + ", userId=" + userId + ", title=" + title + ", content=" + content
+				+ ", reg_date=" + reg_date + ", sign_date=" + sign_date + ", update_date=" + update_date + ", approver="
+				+ approver + ", sign_status=" + sign_status + "]";
+	}
 	
 	
 	   

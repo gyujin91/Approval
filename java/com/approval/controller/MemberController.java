@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
@@ -16,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.approval.dto.ApprovalDTO;
 import com.approval.service.ApprovalService;
@@ -57,7 +59,7 @@ public class MemberController {
 			url = "home"; 
 		} else {
 			session.setAttribute("loginMap", loginMap);
-			url = "redirect:approvalList.do";
+			url = "redirect:/member/approvalList.do";
 		}
 		return url;
 	}
@@ -73,24 +75,40 @@ public class MemberController {
 	
 	// 결재 게시판 출력
 	@RequestMapping(value="approvalList.do")
-	public String approvalList(Model model, @RequestParam Map<String, Object> map, HttpSession session) throws Exception {
+	public String approvalList(Model model, @RequestParam Map<String, Object> map, @RequestParam Map<String, Object> map1, HttpSession session, HttpServletRequest request) throws Exception {
 		map.put("loginMap", session.getAttribute("loginMap"));
 		
 		if(map.get("loginMap") != null) {
+			if(map1.isEmpty()) {
+				map1.put("pageNo", 1);
+				map1.put("listSize", 10);
+			}
 			List<ApprovalDTO> approvalList = approvalService.approvalList(map);
+			Map<String, Object> pageMap = approvalService.page(map1);
 			
 			model.addAttribute("approvalList", approvalList);
 			model.addAttribute("loginMap", map);
+			model.addAttribute("pageMap", pageMap);
+			model.addAttribute("searchType", request.getParameter("searchType") == null ? "select" : request.getParameter("searchType"));
+			model.addAttribute("searchType2", request.getParameter("searchType2") == null? "select" : request.getParameter("searchType2"));
+			
+			System.out.println("request.getParameter(\"searchType\") :: " + request.getParameter("searchType"));
+			System.out.println("request.getParameter(\"searchType2\") :: " + request.getParameter("searchType2"));
 		}
 		return "approval/approvalList";
 	}
 	
 	// ajax(비동기)
 	@RequestMapping("searchAjax.do")
-	public String searchAjax(Model model, @RequestParam Map<String, Object> map) throws Exception {
+	public String searchAjax(Model model, @RequestParam Map<String, Object> map, @RequestParam Map<String, Object> map1, HttpServletRequest request) throws Exception {
 		List<ApprovalDTO> approvalList = approvalService.approvalList(map);
+		Map<String, Object> pageMap = approvalService.page(map1);
+		
 		model.addAttribute("approvalList", approvalList);
 		model.addAttribute("map", map);
+		model.addAttribute("pageMap", pageMap);
+		model.addAttribute("searchType", request.getParameter("searchType") == null ? "select" : request.getParameter("searchType"));
+		model.addAttribute("searchType2", request.getParameter("searchType2") == null? "select" : request.getParameter("searchType2"));
 		return "approval/searchAjax";
 	}
 	
@@ -106,7 +124,10 @@ public class MemberController {
 	// 게시판 등록 
 	@RequestMapping(value="approvalWrite.do")
 	public String approvalWriteForm(Model model, ApprovalDTO dto) throws Exception {
+		System.out.println(1);
+		System.out.println("dto :: " + dto.toString());
 		approvalService.approvalWrite(dto);
+		System.out.println(2);
 		return "redirect:approvalList.do";
 	}
 	
@@ -131,5 +152,7 @@ public class MemberController {
 		approvalService.ApprovalDelete(bno);
 		return "redirect:approvalList.do";
 	}
+	
+	
 	
 }

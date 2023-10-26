@@ -130,39 +130,6 @@
    </div>
    
    <script>
-  	
-   		
-  		/* $("#btn").click(function() {
-  			var userid = $("#userid").val();
-  			var userpw = $("#userpw").val();
-  			
-  			if(userid == "") {
-  				alert("아이디를 입력하세요.");
-  				$("#userid").focus();
-  				
-  			} else if(userpw == "") {  				
-  				alert("비밀번호를 입력하세요.");
-  				$("#userpw").focus(); 				
-  			} else {
-  				$("#fr").attr("action", "member/loginCheck.do").submit();
-  			}
-  			
-  		})
-  		
- 		$(function(){
-  			var loginCheck = '${loginCheck}';
-  			
-  			if(loginCheck == 'useridFail') {
-  				alert("등록 되어 있지 않는 아이디 입니다.");
-  				$("#uesrid").focus();
-  				
-  			} else if(loginCheck == 'userpwFail') {
-  				alert("비밀번호가 틀렸습니다.");
-  				$("#userpw").focus();
-  				
-  			}  			 
-  		}) */
-  		
   		$(function(){
 
 			$("#btn").click(function() {
@@ -177,7 +144,7 @@
   				alert("비밀번호를 입력하세요.");
   				$("#userPw").focus();
   			} else {
-  				$("#fr").attr("action", "member/loginCheck.do").submit();
+  				$("#fr").attr("action", "/myapp/member/loginCheck.do").submit();
   			}
   			
   		})
@@ -194,18 +161,13 @@
   			}
   			
 		
-  		// enter 로그인 
-		/* $("#userId #userPw").on("keydown", function(e){
-			if (e.code == "Enter"){
-				$("#btn").click();
-			}
-		}) */
- })
-  	
-
-
-
-  		
+  		// enter 로그인
+		$('#userPw').on('keypress', function(e){
+		  if(e.keyCode == '13'){
+		  	$('#btn').click();
+		  	}
+  		});
+ })	
   </script>
 </body>
 </html>

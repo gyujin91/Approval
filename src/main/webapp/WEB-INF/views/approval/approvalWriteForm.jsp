@@ -106,8 +106,8 @@
 						<label for="content" class="form-label">내용</label>
 						<textarea rows="3" class="form-control" id="content" name="content" placeholder="내용을 입력하세요." required="required">${dto.content }</textarea>
 					</div>
-					<input type="hidden" class=form-control id="sign_status" name="sign_status" readonly value="${dto.sign_status }">
-					
+					<input type="hidden" id="sign_status" name="sign_status" value="${dto.sign_status }">
+					<input type="hidden" id="approver" name="approver" value="">
 					<div class="input_group">
 					<c:choose>
 						<c:when test="${sessionScope.loginMap.RANK == 'CC' || sessionScope.loginMap.RANK == 'DD'}">
@@ -160,12 +160,19 @@
 	</div>
 	
 <script type="text/javascript">
+	var loginChk = '${loginMap}';
+	
+	if(loginChk == null || loginChk == "") {
+		alert("로그인 해주시기 바랍니다."); 
+		location.href = "home";
+	}
 	
 	$(function() {
 	
 	var status = '${dto.sign_status}';
 	var rank = '${sessionScope.loginMap.RANK}';
-	var approver = '${sessionScope.loginMap.USERNAME }';
+	// var approver = '${sessionScope.loginMap.USERNAME }';
+	
 	// 결재 대기 상태 라면 title, content의 속성을 readonly true로 
 	// 임시저장, 결재 버튼 hide
 	// 상단의 trCheck의 chk1 속성 checked true
@@ -175,7 +182,7 @@
 		$("#tep").hide();
 		$("#end1").hide();
 		$("#trCheck #chk1").prop("checked", true);
-	} else if(status == 'ing') {	// 결재진행중
+	} else if(status == 'ing') {	// 결재중
 		// 과장일 경우
 		if(rank == 'BB') {
 			$("#title").attr("readonly", true);
@@ -233,12 +240,12 @@
 		$("#end2").click(function() {
 			// 과장일 경우
 			if(rank == 'BB') {		  
-				$("#approver").val('approver');	
+				$("#approver").val('${sessionScope.loginMap.USERNAME }');	
 				$("#sign_status").val('ing');
 				$("#frm").attr("action", "approvalUpdate.do").attr("method", "post").submit();
 			} else if(rank == 'AA') {
 				// 부장일 경우
-				$("#approver").val('approver');
+				$("#approver").val('${sessionScope.loginMap.USERNAME }');
 				$("#sign_status").val('end');
 				$("#frm").attr("action", "approvalUpdate.do").attr("method", "post").submit();
 			}
@@ -247,6 +254,7 @@
 		// 과장, 부장 반려 처리
 		$("#ret").click(function() {
 			// 반려는 과장, 부장 똑같이 작동
+			$("#approver").val('${sessionScope.loginMap.USERNAME }');
 			$("#title").attr("readonly", false);	// 제목 수정 가능하게
 			$("#content").attr("readonly", false);	// 내용 수정 가능하게				
 			$("#sign_status").val('ret');			// 결재상태 '반려'

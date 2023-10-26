@@ -10,7 +10,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<!-- MAP은 대문자로 저장됨 -->
 	<select id="loginCheck" parameterType="String" resultType="map">
 		SELECT 
-			USERID, 
+			DECODE(USERID, 
+				'user1', '김부장', 'user2', '이부장', 'user3', '박부장',
+				'user4', '김과장', 'user5', '이과장', 'user6', '박과장',
+				'user7', '김대리', 'user8', '이대리', 'user9', '박대리',
+				'user10', '김사원', 'user11', '이사원', 'user12', '박사원') USERID,
 			USERPW, 
 			USERNAME, 
 			RANK,
